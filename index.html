@@ -36,7 +36,7 @@
             console.log("INDEXUSER:", user); // Log user object
             
 
-            setTimeout(() => {
+          
                 if (user) {
                 console.log("User is logged in:", user);
                 // User is logged in, load content or proceed as necessary
@@ -47,7 +47,6 @@
                     document.getElementById('logoutButton').style.display = 'none'; // Hide logout button
                     window.location.href = "./auth/auth.html"; // Redirect to auth page
                 }
-            },2000);
         });
 
         // export async function saveTipsToFirestore(userId, tips) {
