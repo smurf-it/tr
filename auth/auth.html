@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip Tracker - Auth</title>
+    <link rel="stylesheet" href="auth.css">
+    <script type="module" >
+        console.log("Auth script loaded");
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, setPersistence, browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFHafa4F9JOk99TyS3Ob78HEmW5wXOOb0",
+            authDomain: "tiptracker-e2e9a.firebaseapp.com",
+            projectId: "tiptracker-e2e9a",
+            storageBucket: "tiptracker-e2e9a.appspot.com",
+            messagingSenderId: "326366703466",
+            appId: "1:326366703466:web:b974ba09c22f9e71e3ff13",
+            measurementId: "G-4NWQRC0PBR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Manage user state
+        onAuthStateChanged(auth, user => {
+            console.log("Auth state changed:", user); // Check what the user object looks like
+            if (user) {
+                console.log("User is logged in:", user);
+                window.location.href = '../index.html'; // Redirect to index.html
+            } else {
+                console.log("User not logged in, redirecting to auth page.");
+                // window.location.href = "./auth.html"; // Redirect to auth page
+            }
+        });    
+
+        // Login function
+        document.getElementById('loginButton').addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // console.log("Login successful.");
+                    // onAuthStateChanged will handle redirection
+                    const user = userCredential.user;
+                    console.log("Login successful: ", userCredential.user);
+                    window.location.href = '../index.html'; // Redirect to index.html
+                })
+                .catch(error => {
+                    console.error("Login error:", error.message);
+                    alert(error.message);
+                });
+        });
+
+        // Registration function
+        document.getElementById('registerButton').addEventListener('click', () => {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(userCredential => {
+                    console.log("User registered:", userCredential.user);
+                    // onAuthStateChanged will handle redirection
+                    document.getElementById('showLogin').click();
+                })
+                .catch(error => {
+                    console.error("Registration error:", error.message);
+                    alert(error.message);
+                });
+        });
+
+        // Logout function
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            signOut(auth)
+                .then(() => {
+                    console.log("User logged out.");
+                    // Redirect will be handled by onAuthStateChanged in index.html
+                })
+                .catch(error => alert(error.message));
+        });
+
+        // Show register form
+        document.getElementById('showRegister').addEventListener('click', () => {
+            console.log("Clicked register");
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        });
+
+        // Show login form
+        document.getElementById('showLogin').addEventListener('click', () => {
+            console.log("Clicked login");
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        });
+    </script>
+</head>
+<body>
+    <div class="main_card">
+        <section class="auth">
+            <h2>User Authentication</h2>
+            <div id="userState">
+                <button id="logoutButton" style="display: none;">Logout</button>
+            </div>
+            <div id="loginForm">
+                <h3>Login</h3>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button id="loginButton">Login</button>
+                <p>Don't have an account? <button id="showRegister">Register</button></p>
+            </div>
+            <div id="registerForm" style="display: none;">
+                <h3>Register</h3>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Password" required>
+                <button id="registerButton">Register</button>
+                <p>Already have an account? <button id="showLogin">Login</button></p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

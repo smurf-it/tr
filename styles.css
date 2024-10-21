@@ -1,0 +1,229 @@
+body {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+}
+/* _______________________________PAGE_TOP______________________________ */
+.page_top {
+    display: flex;
+    justify-content: flex-end;
+    /* background-color: white; */
+    margin: 0.5rem;
+}
+
+.page_top button
+{
+    margin-right: 0.25rem;
+}
+
+.container {
+    max-width: 800px; /* Limit the width for better readability */
+    margin: 0 auto; /* Center the container */
+    /* padding: 20px; Add some padding */
+    padding: 0 20px 20px 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px; /* Space below the header */
+}
+
+h1 {
+    font-size: 2.5rem; /* Larger title */
+}
+
+h2 {
+    margin-top: 20px; /* Adjusted margin */
+    font-size: 2rem;
+    text-align: center; /* Center the section titles */
+}
+
+.shift, .tip-entry, .history {
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.button-container {
+    display: flex;
+    justify-content: center; /* Center buttons */
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px; /* Space above buttons */
+}
+
+button {
+    padding: 10px 15px; /* Increased padding for larger buttons */
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background-color: #9b59b6;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #8e44ad;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.history-summary {
+    display: flex;
+    justify-content: space-between; /* Space between total tips and clear button */
+    align-items: center; /* Center items vertically */
+    margin-bottom: 0.5rem; /* Space below summary */
+    font-size: 1.33rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ____MODAL____ */
+
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(42, 42, 42, 0.9); /* Slightly transparent dark background */
+}
+
+.modal-content {
+    background-color: rgba(58, 58, 58, 0.9); /* Semi-transparent background */
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    /*border: 1px solid rgba(155, 89, 182, 0.8);*/ /* Match card border color */
+    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+    display: flex; /* Flexbox for alignment */
+    flex-direction: column; /* Column layout */
+    align-items: center; /* Center items horizontally */
+}
+
+#durationMessage {
+    color: #ffffff; /* Text color */
+    font-size: 1.2rem; /* Larger font size for readability */
+    margin-bottom: 15px; /* Space below the message */
+    text-align: center; /* Center the text */
+}
+
+#okButton {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #9b59b6; /* Button color */
+    color: #ffffff; /* Text color */
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#okButton:hover {
+    background-color: #8e44ad; /* Darker on hover */
+}
+
+/* Clear History Modal */
+.button-container {
+    display: flex;
+    justify-content: space-around; /* Space the buttons evenly */
+    margin-top: 20px; /* Add some spacing above the buttons */
+}
+.confirm {
+    background-color: #28a745; /* Green for confirm */
+    color: white;
+}
+
+.cancel {
+    background-color: #dc3545; /* Red for cancel */
+    color: white;
+}
+
+/* Payment options */
+.payment-options {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.payment-option {
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    width: 45%;
+}
+
+.payment-option.selected {
+    border-color: #007bff; /* Change border color when selected */
+}
+
+
+/* ToolTip */
+.tooltip {
+    background-color: #f9c2c2;
+    color: #d9534f;
+    border: 1px solid #d9534f;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    margin-left: 10px;
+    font-size: 12px;
+    z-index: 10;
+}
+
+/* Payment Preview */
+
+.payment_preview
+{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem; /* Space below summary */;
+    
+}
+
+.payment-total
+{
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    width: 45%;
+}

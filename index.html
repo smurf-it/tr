@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip Tracker for Delivery Drivers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module">     
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFHafa4F9JOk99TyS3Ob78HEmW5wXOOb0",
+            authDomain: "tiptracker-e2e9a.firebaseapp.com",
+            projectId: "tiptracker-e2e9a",
+            storageBucket: "tiptracker-e2e9a.appspot.com",
+            messagingSenderId: "326366703466",
+            appId: "1:326366703466:web:b974ba09c22f9e71e3ff13",
+            measurementId: "G-4NWQRC0PBR"
+        };
+
+        //Init Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);        
+
+        let currentUserId;
+        // Check authentication status
+        onAuthStateChanged(auth, (user) => {
+            console.log("INDEXUSER:", user); // Log user object
+            
+
+            setTimeout(() => {
+                if (user) {
+                console.log("User is logged in:", user);
+                // User is logged in, load content or proceed as necessary
+                currentUserId = user.uid;
+                document.getElementById('logoutButton').style.display = 'block'; // Show logout button
+                } else {
+                    console.log("User not logged in, redirecting to auth page.");
+                    document.getElementById('logoutButton').style.display = 'none'; // Hide logout button
+                    window.location.href = "./auth/auth.html"; // Redirect to auth page
+                }
+            },2000);
+        });
+
+        // export async function saveTipsToFirestore(userId, tips) {
+        //     try {
+        //         const docRef = await addDoc(collection(db, 'tips'), {
+        //             userId: userId,
+        //             tips: tips,
+        //             timestamp: new Date(),
+        //         });
+        //         console.log('Document written with ID: ', docRef.id);
+        //     } catch (e) {
+        //         console.error('Error adding document: ', e);
+        //     }
+        // }
+
+        async function saveTipsToFirestore(userId, tCash, tCard) {
+            try {
+                const date = new Date().toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+                const userRef = doc(db, 'users', userId);
+
+                await setDoc(userRef, {
+                    [`tips.${date}`]: {
+                        cash: tCash,
+                        card: tCard
+                    }
+                }, { merge: true }); // Merges with existing data
+
+                console.log('Tips saved successfully for date:', date);
+            } catch (e) {
+                console.error('Error saving tips:', e);
+            }
+        }
+
+        // Logout function
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            document.getElementById('logoutModal').style.display = "block";
+        });
+
+        function m_signOut() {
+            signOut(auth)
+                .then(() => {
+                    console.log("User logged out.");
+                    // Redirect to auth page after logout
+                    window.location.href = "./auth/auth.html"; // Adjust the path as needed
+                })
+                .catch((error) => {
+                    console.error("Logout error:", error.message);
+                    alert(error.message);
+                });
+        }
+
+        //_______________________________LOGOUT_MODAL_________________________________________
+        document.getElementById('confirmLogoutButton').addEventListener('click', () => {
+            m_signOut();
+        });
+
+        document.getElementById('cancelLogoutButton').addEventListener('click', () => {
+            document.getElementById('logoutModal').style.display = "none";
+        });
+
+        // ________________________________SAVE_TO_DB__________________________________________
+        document.getElementById('saveToDBbtn').addEventListener('click', () => {
+            document.getElementById('normalP').style.display = "block";
+            document.getElementById('saveBTNContainer').style.display = "block";
+            document.getElementById('savedP').style.display = "none";
+            
+            document.getElementById('saveDBModal').style.display = "block";
+
+        });
+
+        // document.getElementById('confirmSavebtn').addEventListener('click', async () => {
+        //     //saveTipsToFirestore(currentUserId, tips);
+        //     try {
+        //         await saveTipsToFirestore(currentUserId, tCash, tCard);
+        //         console.log('Tips are supposed to be saved now!');
+
+        //         setTimeout(() => {
+        //             document.getElementById('normalP').style.display = "none";
+        //             document.getElementById('saveBTNContainer').style.display = "none";
+        //             document.getElementById('savedP').style.display = "block";
+        //         },2000);
+        //     } catch (e) {
+        //         console.error('Error saving tips:', error);
+        //     } finally {
+        //         document.getElementById('saveDBModal').style.display = "none";
+        //     }
+        // })
+
+        document.getElementById('confirmSavebtn').addEventListener('click', async () => {
+            // Show the normal message and button container immediately
+            document.getElementById('normalP').style.display = "none";
+            document.getElementById('saveBTNContainer').style.display = "none";
+            document.getElementById('savedP').style.display = "block";
+
+            // Save tips to Firestore
+            await saveTipsToFirestore(currentUserId, tCash, tCard);
+            console.log('Tips are supposed to be saved now!');
+
+            // Set a timeout to close the modal and show the saved message
+            setTimeout(() => {
+                document.getElementById('normalP').style.display = "block";
+                document.getElementById('saveBTNContainer').style.display = "block";
+                document.getElementById('savedP').style.display = "none";
+
+                document.getElementById('saveDBModal').style.display = "none"; // Close modal after showing the message
+            }, 4000);
+        });
+
+        document.getElementById('cancelSavebtn').addEventListener('click', () => {
+            document.getElementById('saveDBModal').style.display = "none";
+        });
+
+        // _________________________________________RETRIEVE_TIPS_______________________________________
+        async function getMonthlyTips(userId) {
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
+
+            if(userDoc.exists()) {
+                const tipsData = userDoc.data().tips;
+                const montlyTips = {};
+                const curDate = new Date();
+                const curMonth = curDate.getMonth();
+                const curYear = curDate.getFullYear();
+
+
+                for(const [date, tip] of Object.entries(tipsData)){
+                    const tipDate = new Date(date);
+                    if(tipDate.getMonth() === curMonth && tipDate.getFullYear() === curYear) {
+                        montlyTips[date] = tip;
+                    }
+                }
+
+                return montlyTips;
+        
+            } else {
+                console.log('No such User!');
+                return null;
+            }
+        
+        }
+
+        // getMonthlyTips(userId).then(monthlyTips => {
+        //     if (monthlyTips) {
+        //         console.log('Monthly Tips:', monthlyTips);
+        //         // Here, you can also calculate totals or graph the data
+        //     }
+        // });
+
+
+
+    </script>
+</head>
+<body>
+    <div class="page_top">      
+        <button id="saveToDBbtn">
+            <i class="fa-solid fa-floppy-disk"></i> Save Shift
+        </button>  
+        <button id="logoutButton">
+            <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+        </button>        
+    </div>
+
+   
+
+<div class="container">
+    <header>
+        <h1>Tip Tracker</h1>
+    </header>
+
+    <section class="shift">
+        <h2>Start Your Shift</h2>
+        <div class="button-container">
+            <button id="startShiftButton">Start Shift</button>
+            <button id="endShiftButton" style="display: none;">End Shift</button>
+        </div>
+        <div id="shiftInfo" class="shift-info" style="display: none;">
+            <p id="shiftStartTime"></p>
+            <p id="totalShiftTime"></p>
+        </div>
+    </section>
+
+    <section id="tipEntrySection" style="display: none;">
+        <section class="tip-entry">
+            <h2>Log a New Tip</h2>
+            <form id="tipForm">
+                <div class="payment-options">
+                    <div id="cashOption" class="payment-option" data-type="cash">
+                        <i class="fa-solid fa-coins"></i>
+                        <span>Cash</span>
+                    </div>
+                    <div id="cardOption" class="payment-option" data-type="card">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Card</span>
+                    </div>                    
+                </div>
+                <input type="number" step="0.01" placeholder="Tip Amount" id="tipAmount" required disabled title="Please select a payment option first!">
+                <button type="submit" disabled>Add Tip</button>
+            </form>
+        </section>
+    </section>
+
+    <section class="history">
+        <h2>Tip History</h2>
+        <div class="history-summary">
+            Total Tips: <span id="totalTipsAmount">€0.00</span>
+            <button id="clearHistoryButton">Clear History</button>
+        </div>
+        <div class="payment_preview">
+            <div id="cashTotal" class="payment-total" data-type="cash">
+                <i class="fa-solid fa-coins"></i>
+                <span id="totalCashTipsAmount">€0.00</span>
+            </div>
+            <div id="cardOption" class="payment-total" data-type="card">
+                <i class="fa-solid fa-credit-card"></i>
+                <span id="totalCardTipsAmount">€0.00</span>
+            </div> 
+        </div>
+        <table id="tipHistory">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Time</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Entries will be populated here -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- GRAPH -->
+    <section class="graph">
+        <h2>Tips Over Time</h2>
+        <canvas id="tipsChart" width="400" height="200"></canvas>
+    </section>
+
+    <!-- HIDDEN MODALS -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to logout?</p>
+            <div class="button-container">
+                <button id="confirmLogoutButton" class="confirm">Yes</button>
+                <button id="cancelLogoutButton" class="cancel">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="saveDBModal" class="modal">
+        <div class="modal-content">
+            <p id="normalP">Are you sure you want to Save tips to DataBase?</p>
+            <p id="savedP" style="display: none;">Your tips have been successfully saved!</p>
+            <div id="saveBTNContainer" class="button-container">
+                <button id="confirmSavebtn" class="confirm">Yes</button>
+                <button id="cancelSavebtn" class="cancel">No</button>
+            </div>
+            <!-- <button id="saveOkBtn" style="display: none;">OK</button> -->
+        </div>
+    </div>
+
+    <div id="durationModal" class="modal">
+        <div class="modal-content">
+            <p id="durationMessage"></p>
+            <p id="durationTips"></p>
+            <button id="okButton">OK</button>
+        </div>
+    </div>    
+
+    <div id="clearHistoryModal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to clear the tip history?</p>
+            <div class="button-container">
+                <button id="confirmClearButton" class="confirm">Yes</button>
+                <button id="cancelClearButton" class="cancel">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editTipModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Tip</h2>
+            <form id="editTipForm">
+                <input type="number" id="editTipAmount" step="0.01" placeholder="Enter the new tip value" required>
+                <button type="submit">Update</button>
+                <button type="button" id="cancelEditButton">Cancel</button>
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+// Initialize variables
+let shiftStartTime = null;
+let tips = [];
+let isCash = null;
+let selectedPaymentType = null; // Variable to store selected payment type
+let orderIdCounter = 1; // Initialize order ID counter
+
+var tCash;
+var tCard;
+
+
+let tipsChart;
+let chartData = {
+    labels: [],
+    datasets: [{
+        label: 'Tips (€)',
+        data: [],
+        borderColor: 'rgba(155, 89, 182, 1)',
+        backgroundColor: 'rgba(155, 89, 182, 0.2)',
+        fill: true,
+    }]
+};
+
+function createChart() {
+    const ctx = document.getElementById('tipsChart').getContext('2d');
+    tipsChart = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            plugins: {
+                legend: {
+                    onClick: (e) => e.stopPropagation()
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Tips (€)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateChart(dateTime, amount) {
+    const date = new Date(dateTime);
+    const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+    const label = date.toLocaleTimeString('en-GB', options);
+    chartData.labels.push(label);
+    chartData.datasets[0].data.push(amount);
+    tipsChart.update();
+}
+
+window.onload = function() {
+    createChart();
+    const savedTips = getCookie("tips");
+    if (savedTips) {
+        tips = JSON.parse(savedTips);
+        tips.forEach((tip, index) => {
+            addTipToHistory(tip.orderId, tip.dateTime, tip.amount, false, index, tip.paymentType);
+            updateChart(tip.dateTime, tip.amount);
+        });
+        updateTotalTipsDisplay(); 
+    }
+
+    
+
+    // Check for active shift
+    const savedShiftStartTime = getCookie("shiftStartTime");
+    const isShiftActive = getCookie("isShiftActive") === "true";
+    if(isShiftActive) {
+        //Load Last orderID
+        const savedOrderIdCounter = getCookie("orderIdCounter");
+        if(savedOrderIdCounter){
+            orderIdCounter = parseInt(savedOrderIdCounter, 10);
+        }
+        
+        //Load shift start time
+        if(savedShiftStartTime) {
+            shiftStartTime = new Date(savedShiftStartTime);
+
+            const day = String(shiftStartTime.getDate()).padStart(2, '0');
+            const month = String(shiftStartTime.getMonth() + 1).padStart(2, '0');
+            const year = shiftStartTime.getFullYear();
+            const hours =  String(shiftStartTime.getHours()).padStart(2, '0');
+            const minutes = String(shiftStartTime.getMinutes()).padStart(2, '0');
+
+            document.getElementById('shiftStartTime').textContent = `Shift on ${day}/${month}/${year}, started at: ${hours}:${minutes}`;
+            document.getElementById('shiftInfo').style.display = 'block';
+            document.getElementById('startShiftButton').style.display = 'none';
+            document.getElementById('endShiftButton').style.display = 'inline';
+            document.getElementById('tipEntrySection').style.display = 'block'; 
+        }
+    }
+
+    // Reset payment method
+    selectedPaymentType = null; // Clear selected payment type
+    toggleTipInput(false); // Disable input and button
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.classList.remove('selected'); // Deselect all payment options
+    });
+
+    // Clear the tip amount input
+    document.getElementById('tipAmount').value = '';
+    
+    // Ensure the tip input is initially disabled
+    toggleTipInput(false);
+};
+
+// Modify the addTipToHistory function
+function addTipToHistory(orderId, dateTime, amount, addToTotal = true, index = tips.length, paymentType = null) { //for characters
+    const tableBody = document.querySelector('#tipHistory tbody');
+    const newRow = document.createElement('tr');
+    
+    const formattedDateTime = formatDateTime(dateTime);
+    const paymentIcon = paymentType === 'cash' ? '<i class="fa-solid fa-coins"></i>' : '<i class="fa-solid fa-credit-card"></i>';
+    // const paymentIcon = isCash ? '<i class="fa-solid fa-coins"></i>' : '<i class="fa-solid fa-credit-card"></i>';
+
+    // Combine tip amount with payment icon
+    newRow.innerHTML = `
+        <td>${orderId}</td>
+        <td>${formattedDateTime}</td>
+        <td>${paymentIcon} €<span class="tip-amount">${amount.toFixed(2)}</span></td>
+        <td>
+            <button class="editTipButton" data-index="${index}">Edit</button>
+        </td>`;
+
+    tableBody.appendChild(newRow);
+
+    if (addToTotal) {
+        tips.push({ orderId, dateTime, amount, paymentType });
+        setCookie("tips", JSON.stringify(tips), 7);
+        updateTotalTipsDisplay();
+        updateChart(dateTime, amount);
+    }
+
+    //orderIdCounter++;
+
+    newRow.querySelector('.editTipButton').addEventListener('click', function() {
+        const tipIndex = index;
+        document.getElementById('editTipAmount').value = '';
+        document.getElementById('editTipForm').dataset.index = tipIndex;
+        document.getElementById('editTipModal').style.display = 'block';
+    });
+}
+
+function formatShiftDate(dateTime) {
+    const date = new Date(dateTime);
+    const day = String(date.getDay()).padStart(2, '0');
+    const month = String(date.getMonth()).padStart(2, '0');
+    const year = String(date.getFullYear());
+
+    return `${day}/${month}/${year}`;
+
+}
+
+function formatDateTime(dateTime) {
+    const date = new Date(dateTime);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${hours}:${minutes}`; // Return time only
+}
+
+
+
+function updateTotalTipsDisplay() {
+    const totalTips = tips.reduce((total, tip) => total + tip.amount, 0);
+    const totalCash = tips.filter(tip => tip.paymentType === 'cash').reduce((total, tip) => total + tip.amount, 0);
+    const totalCard = tips.filter(tip => tip.paymentType === 'card').reduce((total, tip) => total + tip.amount, 0);
+
+    document.getElementById('totalTipsAmount').textContent = `€${totalTips.toFixed(2)}`;
+    document.getElementById('totalCashTipsAmount').textContent = `€${totalCash.toFixed(2)}`;
+    document.getElementById('totalCardTipsAmount').textContent = `€${totalCard.toFixed(2)}`;
+
+    tCash = totalCash;
+    tCard = totalCard;
+}
+
+
+
+// //_______________________________LOGOUT_MODAL_________________________________________
+// document.getElementById('confirmLogoutButton').addEventListener('click', () => {
+//     m_signOut();
+// });
+
+// document.getElementById('cancelLogoutButton').addEventListener('click', () => {
+//     document.getElementById('logoutModal').style.display = "none";
+
+// });
+
+
+document.getElementById('tipForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const tipAmount = parseFloat(document.getElementById('tipAmount').value);
+    const currentTime = new Date().toISOString();
+    const orderId = orderIdCounter; // Incrementing order ID
+    addTipToHistory(orderId, currentTime, tipAmount, true, tips.length, selectedPaymentType);
+    orderIdCounter++; // Increment the order ID for the next tip
+    setCookie("orderIdCounter", orderIdCounter, 7);
+    event.target.reset(); 
+    updateTotalTipsDisplay(); 
+    selectedPaymentType = null; // Reset the payment type
+    document.querySelector('.payment-option.selected')?.classList.remove('selected');
+    toggleTipInput(false);
+});
+
+function toggleTipInput(enable) {
+    document.getElementById('tipAmount').disabled = !enable;
+    document.querySelector('button[type="submit"]').disabled = !enable;
+}
+
+//_____________________________PAYMENT_OPTIONS_______________________________________
+// Modify the payment option click event
+document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+        selectedPaymentType = this.getAttribute('data-type');//Characters 
+        // isCash = this.getAttribute('data-type') === 'cash';//Boolean cash
+        document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        setCookie("selectedPaymentType", selectedPaymentType, 7); // Save the selected payment type
+        toggleTipInput(true);
+
+        document.getElementById('tipAmount').focus();
+        document.getElementById('tipAmount').placeholder = "Tip Amount";
+    });
+});
+
+
+//__________________________EDIT_TIP_________________________________
+document.getElementById('editTipForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const index = parseInt(this.dataset.index);
+    const newAmount = parseFloat(document.getElementById('editTipAmount').value);
+    
+    // Get the original payment type to preserve it
+    const paymentType = tips[index].paymentType;
+
+    // Update the amount in the tips array
+    tips[index] = { ...tips[index], amount: newAmount }; // Keep other properties
+
+    setCookie("tips", JSON.stringify(tips), 7);
+
+    const tableBody = document.querySelector('#tipHistory tbody');
+    const rows = tableBody.querySelectorAll('tr');
+    rows[index].querySelector('.tip-amount').textContent = newAmount.toFixed(2);
+    
+    // Update chart data
+    chartData.datasets[0].data[index] = newAmount;
+    tipsChart.update();
+
+    // Update total amounts after editing
+    updateTotalTipsDisplay();
+
+    document.getElementById('editTipModal').style.display = 'none';
+});
+
+
+document.getElementById('cancelEditButton').addEventListener('click', function() {
+    document.getElementById('editTipModal').style.display = 'none'; 
+});
+
+document.getElementById('clearHistoryButton').addEventListener('click', function() {
+    document.getElementById('clearHistoryModal').style.display = 'block';
+});
+
+document.getElementById('confirmClearButton').addEventListener('click', function() {
+    tips = [];
+    orderIdCounter = 1; // Reset the order ID counter
+    setCookie("tips", JSON.stringify(tips), 7); // Clear tips from cookies
+    setCookie("orderIdCounter", orderIdCounter, 7); // Reset order ID counter in cookies
+    document.querySelector('#tipHistory tbody').innerHTML = ''; 
+    updateTotalTipsDisplay(); 
+    resetChart(); 
+    document.getElementById('clearHistoryModal').style.display = 'none'; 
+});
+
+document.getElementById('cancelClearButton').addEventListener('click', function() {
+    document.getElementById('clearHistoryModal').style.display = 'none'; 
+});
+
+function resetChart() {
+    chartData.labels = [];
+    chartData.datasets[0].data = [];
+    tipsChart.update(); 
+}
+
+//_______________________________START_SHIFT___________________________________________
+document.getElementById('startShiftButton').addEventListener('click', function() {
+    shiftStartTime = new Date();
+    //Init order ID
+    orderIdCounter = 1;
+    setCookie("orderIdCounter", orderIdCounter, 7);
+
+    const day = String(shiftStartTime.getDate()).padStart(2, '0');
+    const month = String(shiftStartTime.getMonth() + 1).padStart(2, '0');
+    const year = shiftStartTime.getFullYear();
+    const hours =  String(shiftStartTime.getHours()).padStart(2, '0');
+    const minutes = String(shiftStartTime.getMinutes()).padStart(2, '0');
+    
+    document.getElementById('shiftStartTime').textContent = `Shift on ${day}/${month}/${year}, started at: ${hours}:${minutes}`;
+    document.getElementById('shiftInfo').style.display = 'block';
+    this.style.display = 'none';
+    document.getElementById('endShiftButton').style.display = 'inline';
+    document.getElementById('tipEntrySection').style.display = 'block'; 
+
+    // Save shift start time and active status
+    setCookie("shiftStartTime", shiftStartTime.toISOString(), 7);
+    setCookie("isShiftActive", "true", 7);
+});
+
+//____________________________________END_SHIFT_____________________________________
+document.getElementById('endShiftButton').addEventListener('click', function() {
+    const shiftEndTime = new Date();
+    const duration = calculateShiftDuration(shiftStartTime, shiftEndTime);
+    const totalTipsInShift = tips.reduce((total, tip) => total + tip.amount, 0);
+    const totalCashInShift = tips.filter(tip => tip.paymentType === 'cash').reduce((total, tip) => total + tip.amount, 0);
+    const totalCardInShift = tips.filter(tip => tip.paymentType === 'card').reduce((total, tip) => total + tip.amount, 0);
+
+    document.getElementById('durationMessage').textContent = `You worked for: ${duration}`;
+    document.getElementById('durationTips').innerHTML = `
+        <i class="fa-solid fa-coins"></i> Tips: €${totalCashInShift.toFixed(2)}
+        <i class="fa-solid fa-credit-card"></i> Tips: €${totalCardInShift.toFixed(2)}<br><br>
+        Total Tips in Shift: €${totalTipsInShift.toFixed(2)}`;
+    
+    document.getElementById('durationModal').style.display = 'block';
+    shiftStartTime = null; 
+    document.getElementById('shiftInfo').style.display = 'none';
+    this.style.display = 'none';
+    document.getElementById('startShiftButton').style.display = 'inline';
+    document.getElementById('tipEntrySection').style.display = 'none'; 
+
+    //Reset order ID
+    orderIdCounter = 1;
+    setCookie("orderIdCounter", orderIdCounter, 7);
+    setCookie("shiftStartTime", "", -1); 
+
+});
+
+//________________________CLOSE_MODAL______________________________________
+document.getElementById('okButton').addEventListener('click', function() {
+    document.getElementById('durationModal').style.display = 'none';
+});
+
+function calculateShiftDuration(start, end) {
+    const duration = new Date(end - start);
+    const hours = duration.getUTCHours();
+    const minutes = duration.getUTCMinutes();
+    return `${hours} hours and ${minutes} minutes`;
+}
+
+function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+}
+
+function getCookie(name) {
+    return document.cookie.split('; ').reduce((r, v) => {
+        const parts = v.split('=');
+        return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+    }, '');
+}
+
+function toggleTipInput(enable) {
+    const tipAmountInput = document.getElementById('tipAmount');
+
+    tipAmountInput.disabled = !enable;
+    document.querySelector('button[type="submit"]').disabled = !enable;
+
+    if (enable) {
+        tipAmountInput.title = ""; // Clear the title when enabling input
+    } else {
+        tipAmountInput.title = "Please select a payment option first!"; // Set the tooltip when disabling input
+    }
+}
+
+// Set the initial placeholder when the page loads
+document.getElementById('tipAmount').placeholder = "Tip Amount";
+
+document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+        selectedPaymentType = this.getAttribute('data-type');
+        document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        toggleTipInput(true); // Enable the tip input when an option is selected
+
+        // Restore the placeholder
+        document.getElementById('tipAmount').placeholder = "Tip Amount";
+    });
+});
+
+// Modify the toggleTipInput function
+function toggleTipInput(enable) {
+    const tipAmountInput = document.getElementById('tipAmount');
+
+    tipAmountInput.disabled = !enable;
+    document.querySelector('button[type="submit"]').disabled = !enable;
+
+    if (!enable) {
+        tipAmountInput.placeholder = "Please select a payment method first"; // Set the placeholder when disabling input
+        tipAmountInput.title = "Please select a payment option first!"; // Set the tooltip when disabling input
+    } else {
+        tipAmountInput.title = ""; // Clear the title when enabling input
+    }
+}
+
+// Optionally, call toggleTipInput with false when the page first loads
+toggleTipInput(false);
+
+</script>
+
+</body>
+</html>
