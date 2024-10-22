@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checking User</title>
+</head>
+<body>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFHafa4F9JOk99TyS3Ob78HEmW5wXOOb0",
+            authDomain: "tiptracker-e2e9a.firebaseapp.com",
+            projectId: "tiptracker-e2e9a",
+            storageBucket: "tiptracker-e2e9a.appspot.com",
+            messagingSenderId: "326366703466",
+            appId: "1:326366703466:web:b974ba09c22f9e71e3ff13",
+            measurementId: "G-4NWQRC0PBR"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                console.log("User Found, redirecting to home");
+                window.location.href = "home.html";
+            } else {
+                console.log("User Not Found, redirecting to auth");
+                window.location.href = "./auth/auth.html";
+            }
+        });
+    </script>
+</body>
+</html>
