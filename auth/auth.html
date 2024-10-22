@@ -9,7 +9,8 @@
         console.log("Auth script loaded");
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, setPersistence, browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword} 
+        from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
         // Initialize Firebase
         const firebaseConfig = {
