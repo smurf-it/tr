@@ -29,6 +29,18 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        document.addEventListener('DOMContentLoaded', () => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    const userId = user.uid; // Get user ID
+                    checkSubscriptionStatus(userId);
+                } else {
+                    console.log('The user couldnt be found. Redirecting to auth...');
+                   // window.location.href = './auth/auth.html'; // Redirect to auth if not logged in
+                }
+            });
+        });
+
         async function checkSubscriptionStatus(userId) {
             try {
                 const userDoc = await getDoc(doc(db, 'userAccess', userId));
@@ -55,18 +67,6 @@
                 console.error("Error checking subscription status:", error);
             }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    const userId = user.uid; // Get user ID
-                    checkSubscriptionStatus(userId);
-                } else {
-                    console.log('The user couldnt be found. Redirecting to auth...');
-                   // window.location.href = './auth/auth.html'; // Redirect to auth if not logged in
-                }
-            });
-        });
 
         document.getElementById('checkout-button').addEventListener('click', async () => {
             const userId = auth.currentUser.uid; // Get the current user ID
