@@ -51,9 +51,7 @@
                     const user = userCredential.user;
                     console.log("Login successful: ", userCredential.user);
                     // window.location.href = '../index.html'; // Redirect to index.html
-                    setTimeout(() => {
-                        window.location.href = '../payment.html';
-                    }, 1000);
+                    window.location.href = '../payment.html';
                 })
                 .catch(error => {
                     console.error("Login error:", error.message);
