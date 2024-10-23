@@ -28,7 +28,8 @@
         onAuthStateChanged(auth, (user) => {
             if(user) {
                 console.log("User Found, redirecting to home");
-                window.location.href = "home.html";
+                // window.location.href = "home.html";
+                window.location.href = "payment.html";
             } else {
                 console.log("User Not Found, redirecting to auth");
                 window.location.href = "./auth/auth.html";
