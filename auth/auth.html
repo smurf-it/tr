@@ -39,15 +39,14 @@
         //     }
         // });    
 
-         // Set persistence
+        // Set persistence for user sessions
         setPersistence(auth, browserLocalPersistence)
             .then(() => {
-                // Manage user state
                 onAuthStateChanged(auth, user => {
                     console.log("Auth state changed:", user);
                     if (user) {
                         console.log("User is logged in:", user);
-                        window.location.href = '../payment.html'; // Redirect to payment.html
+                        window.location.href = '../payment.html'; // Redirect to payment if logged in
                     } else {
                         console.log("User not logged in, staying on auth page.");
                     }
