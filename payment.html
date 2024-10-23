@@ -30,8 +30,11 @@
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded and parsed");
             onAuthStateChanged(auth, (user) => {
+                console.log("Auth state changed in payment.html:", user); // Check user state
                 if (user) {
+                    console.log("User is logged in. Checking payment status!"); // Check user state
                     const userId = user.uid; // Get user ID
                     checkSubscriptionStatus(userId);
                 } else {
