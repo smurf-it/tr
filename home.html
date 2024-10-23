@@ -37,7 +37,8 @@
                 window.location.href = "./auth/auth.html";
                 document.getElementById('logoutButton').style.display = 'none'; // Hide logout button
             } else {
-                currentUserId = user.userId;
+                // currentUserId = user.userId;
+                currentUserId = user.uid;
                 document.getElementById('logoutButton').style.display = 'block'; // Show logout button
             }
         });
